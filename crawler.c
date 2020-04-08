@@ -1,42 +1,71 @@
 #include "crawler.h"
 
 int main(int argc, char** argv){
-	int sockfd, n;
-	struct sockaddr_in serv_addr;
-	struct hostent* server;
-	
+    int sockfd, n;
+    struct sockaddr_in server_addr;
+    struct hostent* server;
+
+    char* buffer = (char*) malloc(BUFFER_SIZE*sizeof(char));
+    char* response = (char*) malloc(RESPONSE_SIZE*sizeof(char));
+
 	if (argc < 2) {
-		fprintf(stderr, "Please enter a URL to crawl.\n");
+		fprintf(stderr, "Usage %s hostname.\n", argv[0]);
 	}
 
-	// retrieving server IP and port no
 
-	server = gethostbyname(argv[1]);
-	printf("%s", server->h_name);
+	// retrieving server IP
+    server = gethostbyname(argv[1]);
 	if (server == NULL) {
 		fprintf(stderr, "ERROR, no such host\n");
 		exit(0);
 	}
-	
-	// initialising socket
-	bzero((char*)&serv_addr, sizeof(serv_addr));
 
-	serv_addr.sin_family = AF_INET;
-	
-	bcopy(server->h_addr_list[0], (char*)&serv_addr.sin_addr.s_addr, server->h_length);
-
-	serv_addr.sin_port = htons(PORT_NO);
+	// initialising server socket
+	bzero((char*)&server_addr, sizeof(server_addr));
+	server_addr.sin_family = AF_INET;
+	// copying ip address over to server_addr struct
+	bcopy(server->h_addr_list[0], (char*)&server_addr.sin_addr.s_addr, server->h_length);
+	// assigning portno for server_addr struct
+	server_addr.sin_port = htons(PORT_NO);
 	
 	// create client socket
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	
 	if (sockfd < 0) {
 		perror("ERROR opening socket");
+		exit(0);
 	}
 
-	if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+	if (connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         	perror("ERROR connecting");
         	exit(0);
     	}
 	
+	// send HTTP request to server
+	sprintf(buffer, "GET / HTTP/1.0\r\n\r\n User-Agent: benn1\r\n Host: %s\r\n", server->h_name);
+	n = write(sockfd, buffer, BUFFER_SIZE);
+	if (n < 0) {
+		perror("ERROR writing to socket");
+		exit(0);
+	}
+
+	bzero(buffer, BUFFER_SIZE);
+	int size = 0;
+	while((n = (read(sockfd, buffer, BUFFER_SIZE - 1))) != 0) {
+        if (n < 0) {
+            perror("ERROR reading from socket");
+            exit(0);
+        }
+        size += BUFFER_SIZE;
+        response = realloc(response, size);
+        response[size] = NULL;
+	    strncat(response, buffer);
+        bzero(buffer, BUFFER_SIZE);
+    }
+	printf("%s", response);
+	parse_anchors(response);
+	free(buffer);
+	free(response);
 }
+
+

@@ -1,2 +1,4 @@
-.crawler
-.crawler.dSYM/Contents
+crawler
+crawler.dSYM
+# output files
+.o

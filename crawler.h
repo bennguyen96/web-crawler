@@ -8,4 +8,12 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <stdbool.h>
+#ifndef PORT_NO
 #define PORT_NO 80
+#endif
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 1024
+#endif
+#ifndef RESPONSE_SIZE
+#define RESPONSE_SIZE 1024
+#endif

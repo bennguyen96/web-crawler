@@ -1,0 +1,17 @@
+language: c
+
+os:
+    - linux
+
+compiler:
+    - gcc
+
+before_install:
+     - pip install --user cpp-coveralls
+
+script:
+    - make
+    - ./test
+
+after_success:
+    - coveralls --exclude lib --exclude tests --exclude test --gcov-options '\-lp'
