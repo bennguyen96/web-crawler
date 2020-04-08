@@ -8,6 +8,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include "io.c"
 #ifndef PORT_NO
 #define PORT_NO 80
 #endif

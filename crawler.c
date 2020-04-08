@@ -7,6 +7,7 @@ int main(int argc, char** argv){
 
     char* buffer = (char*) malloc(BUFFER_SIZE*sizeof(char));
     char* response = (char*) malloc(RESPONSE_SIZE*sizeof(char));
+    char** parsed;
 
 	if (argc < 2) {
 		fprintf(stderr, "Usage %s hostname.\n", argv[0]);
@@ -27,10 +28,10 @@ int main(int argc, char** argv){
 	bcopy(server->h_addr_list[0], (char*)&server_addr.sin_addr.s_addr, server->h_length);
 	// assigning portno for server_addr struct
 	server_addr.sin_port = htons(PORT_NO);
-	
+
 	// create client socket
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	
+
 	if (sockfd < 0) {
 		perror("ERROR opening socket");
 		exit(0);
@@ -40,7 +41,7 @@ int main(int argc, char** argv){
         	perror("ERROR connecting");
         	exit(0);
     	}
-	
+
 	// send HTTP request to server
 	sprintf(buffer, "GET / HTTP/1.0\r\n\r\n User-Agent: benn1\r\n Host: %s\r\n", server->h_name);
 	n = write(sockfd, buffer, BUFFER_SIZE);
@@ -58,12 +59,15 @@ int main(int argc, char** argv){
         }
         size += BUFFER_SIZE;
         response = realloc(response, size);
-        response[size] = NULL;
-	    strncat(response, buffer);
+        response[size] = '\0';
+	    strcat(response, buffer);
         bzero(buffer, BUFFER_SIZE);
     }
-	printf("%s", response);
-	parse_anchors(response);
+	parsed = parse_anchors(response);
+    size_t no_parsed = sizeof(parsed)/sizeof(char*);
+    for (int i = 0; i < no_parsed; ++i) {
+        free(no_parsed[i]);
+    }
 	free(buffer);
 	free(response);
 }
