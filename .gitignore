@@ -1,4 +1,4 @@
 crawler
 crawler.dSYM
 # output files
-.o
+*.o
