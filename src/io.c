@@ -49,7 +49,7 @@ char** parse_anchors(char* response, int* size) {
         size_of_matches++;
     }
 
-    regfree(&regex);
+//    regfree(&regex);
     *size = size_of_matches - 1;
     return matches;
 }
