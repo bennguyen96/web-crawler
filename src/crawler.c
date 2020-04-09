@@ -9,15 +9,18 @@ int main(int argc, char** argv){
     char* response = (char*) malloc(RESPONSE_SIZE*sizeof(char));
     char** parsed;
     int* array_size = (int*) malloc(sizeof(int));
+    char* file = NULL;
 
     if (argc < 2) {
         fprintf(stderr, "Usage %s hostname.\n", argv[0]);
         exit(0);
     }
-
+    // external library function to parse uri
+    struct uri uri = {0};
+    uriparse(argv[1], &uri);
 
     // retrieving server IP
-    server = gethostbyname(argv[1]);
+    server = gethostbyname(uri.host);
     if (server == NULL) {
         fprintf(stderr, "ERROR, no such host\n");
         exit(0);
@@ -44,8 +47,8 @@ int main(int argc, char** argv){
         exit(0);
     }
 
-    // send HTTP request to server
-    sprintf(buffer, "GET / HTTP/1.0\r\n\r\n User-Agent: benn1\r\n Host: %s\r\n", server->h_name);
+    format_request(buffer, file, server->h_name);
+    printf("%s", buffer);
     n = write(sockfd, buffer, BUFFER_SIZE);
     if (n < 0) {
         perror("ERROR writing to socket");
@@ -67,6 +70,7 @@ int main(int argc, char** argv){
     }
     parsed = parse_anchors(response, array_size);
     for (int i = 0; i < *array_size; ++i) {
+        printf("%s\n", parsed[i]);
         free(parsed[i]);
     }
     free(buffer);

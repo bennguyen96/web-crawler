@@ -2,14 +2,20 @@ CC=gcc
 CFLAGS=-g
 CFLAGS+=-Wall
 
-crawler: crawler.o
-	$(CC) $(CFLAGS) -o crawler crawler.o
+crawler: src/crawler.o src/io.o src/uriparse.o
+	$(CC) $(CFLAGS) -o crawler src/crawler.o src/io.o src/uriparse.o
 
-crawler.o: crawler.c crawler.h io.c io.h
-	$(CC) $(CFLAGS) -c crawler.c io.c
+crawler.o: src/crawler.c
+	$(CC) $(CFLAGS) -c src/crawler.c
+
+io.o: src/io.c
+	$(CC) $(CFLAGS) -c src/io.c
+
+uriparse.o: src/uriparse.c
+	$(CC) $(CFLAGS) -c src/uriparse.c
 
 clean:
-	rm *.o crawler
+	rm crawler src/*.o
 
 test:
-	./crawler ibdhost.com
+	./crawler http://ibdhost.com

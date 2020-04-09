@@ -1,7 +1,14 @@
 #include "io.h"
 
 //struct* uri parse_io(char* domain);
-//char* format_request(struct uri* url);
+void format_request(char* buffer, char* file, char* h_name) {
+    if (!file) {
+        sprintf(buffer, "GET / HTTP/1.1\r\nUser-Agent: benn1\r\nHost: %s\r\nConnection: close\r\n\r\n", h_name);
+    }
+    else {
+        sprintf(buffer, "GET %s HTTP/1.1\r\nUser-Agent: benn1\r\nHost: %s\r\nConnection: close\r\n\r\n", file, h_name);
+    }
+}
 
 char** parse_anchors(char* response, int* size) {
 
@@ -43,6 +50,6 @@ char** parse_anchors(char* response, int* size) {
     }
 
     regfree(&regex);
-    *size = size_of_matches - 1
+    *size = size_of_matches - 1;
     return matches;
 }
