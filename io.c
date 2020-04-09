@@ -3,7 +3,7 @@
 //struct* uri parse_io(char* domain);
 //char* format_request(struct uri* url);
 
-char** parse_anchors(char* response) {
+char** parse_anchors(char* response, int* size) {
 
     // code referenced from https://stackoverflow.com/questions/1085083/regular-expressions-in-c-examples
     // author: Laurence Gonsalves
@@ -43,6 +43,6 @@ char** parse_anchors(char* response) {
     }
 
     regfree(&regex);
+    *size = size_of_matches - 1
     return matches;
 }
-

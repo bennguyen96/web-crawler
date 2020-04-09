@@ -3,4 +3,4 @@
 #include <regex.h>
 #include <string.h>
 
-char** parse_anchors(char* response);
+char** parse_anchors(char* response, int* size);
