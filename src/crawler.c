@@ -10,6 +10,8 @@ int main(int argc, char** argv){
     char** parsed;
     int* array_size = (int*) malloc(sizeof(int));
     char* file = NULL;
+//    llist* seen_array[MAX_PAGES];
+//    int size_seen_array = 0;
 
     if (argc < 2) {
         fprintf(stderr, "Usage %s hostname.\n", argv[0]);
@@ -18,11 +20,14 @@ int main(int argc, char** argv){
 
     llist* list = create_llist(argv[1]);
         while (list != NULL) {
+//          // need to format uri properly
+//          format_uri(list->website);
             // external library function to parse uri
+
             struct uri uri = {0};
-            uriparse(get_website(list), &uri);
+            uriparse(list->website, &uri);
             file = uri.path;
-            if (!file) {
+            if (!file){
                 fprintf(stdout, "%s\n", uri.host);
             }
             else {
@@ -57,6 +62,7 @@ int main(int argc, char** argv){
             }
 
             format_request(buffer, file, server->h_name);
+            fprintf(stdout, "%s\n", buffer);
             n = write(sockfd, buffer, BUFFER_SIZE);
             if (n < 0) {
                 perror("ERROR writing to socket");
@@ -76,17 +82,22 @@ int main(int argc, char** argv){
                 strcat(response, buffer);
                 bzero(buffer, BUFFER_SIZE);
             }
-
             parsed = parse_anchors(response, array_size);
             for (int i = 0; i < *array_size; ++i) {
                 list = insert_llist(list, parsed[i]);
+                fprintf(stdout, "%s\n", parsed[i]);
+//                free(parsed[i]);
             }
-            response = calloc(RESPONSE_SIZE, sizeof(char));
+            response = realloc(response, RESPONSE_SIZE);
+        // add to seen_array, seen_array will be free'd
+//        seen_array[size_seen_array] = list;
         list = pop_llist(list);
         }
+
 //    free(buffer);
 //    free(response);
 //    free(parsed);
 //    free(array_size);
+// free parsed[i]
 }
 

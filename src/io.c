@@ -53,3 +53,7 @@ char** parse_anchors(char* response, int* size) {
     *size = size_of_matches - 1;
     return matches;
 }
+
+void format_uri(char* string) {
+
+}

@@ -20,3 +20,6 @@
 #ifndef RESPONSE_SIZE
 #define RESPONSE_SIZE 1024
 #endif
+#ifndef MAX_PAGES
+#define MAX_PAGES 100
+#endif
