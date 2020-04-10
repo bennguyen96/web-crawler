@@ -5,10 +5,10 @@ int main(int argc, char** argv){
     int sockfd, n;
     struct sockaddr_in server_addr;
     struct hostent* server;
-    char* buffer = (char*) malloc(BUFFER_SIZE*sizeof(char));
-    char* response = (char*) malloc(RESPONSE_SIZE*sizeof(char));
+    char* buffer = malloc(BUFFER_SIZE*sizeof(char));
+    char* response = malloc(RESPONSE_SIZE*sizeof(char));
     char** parsed;
-    int* array_size = (int*) malloc(sizeof(int));
+    int* array_size = malloc(sizeof(int));
     char* file = NULL;
 //    llist* seen_array[MAX_PAGES];
 //    int size_seen_array = 0;
@@ -22,20 +22,22 @@ int main(int argc, char** argv){
         while (list != NULL) {
             // need to format uri properly
             // if string contains illegal characters/strings that we dont need to parse
-            if (!format_uri(list->website)) {
+            list->website = format_uri(list->website, list->crawled_from);
+            if (list->website == NULL) {
                 list = pop_llist(list);
                 continue;
-            };
-            // external library function to parse uri
+            }
 
+            // external library function to parse fixed uri
             struct uri uri = {0};
             uriparse(list->website, &uri);
             file = uri.path;
-            // retrieving server IP
+            // retrieving server IP if exists
             server = gethostbyname(uri.host);
             if (server == NULL) {
                 fprintf(stderr, "ERROR, no such host\n");
-                exit(0);
+                list = pop_llist(list);
+                continue;
             }
 
             // initialising server socket
@@ -76,7 +78,7 @@ int main(int argc, char** argv){
                 }
                 size += BUFFER_SIZE;
                 response = realloc(response, size);
-                response[size - 1] = '\0';
+//                response[size - 1] = '\0';
                 strcat(response, buffer);
                 bzero(buffer, BUFFER_SIZE);
             }
@@ -91,7 +93,7 @@ int main(int argc, char** argv){
 //        seen_array[size_seen_array] = list;
         list = pop_llist(list);
         }
-
+    exit(1);
 //    free(buffer);
 //    free(response);
 //    free(parsed);

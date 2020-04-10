@@ -8,4 +8,4 @@
 
 void format_request(char* buffer, char* file, char* h_name);
 char** parse_anchors(char* response, int* size);
-int format_uri(char* string);
+char* format_uri(char* string, char* crawled_from);

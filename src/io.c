@@ -1,5 +1,5 @@
 #include "io.h"
-static const char* PROTOCOL = "http";
+static const char* PROTOCOL = "http:";
 static const char* DOUBLE_SLASH = "//";
 
 //struct* uri parse_io(char* domain);
@@ -21,7 +21,7 @@ char** parse_anchors(char* response, int* size) {
     regmatch_t matchptr[2];
     char* temp;
     int size_of_matches = 1;
-    char** matches = (char**) malloc(sizeof(char*));
+    char** matches = malloc(sizeof(char*));
     /* Compile regular expression */
     return_value = regcomp(&regex, "<a[^>]+href=\"([^>|\"]+)\">", (REG_EXTENDED | REG_ICASE));
     if (return_value != 0) {
@@ -56,44 +56,45 @@ char** parse_anchors(char* response, int* size) {
     return matches;
 }
 
-int format_uri(char* string) {
+char* format_uri(char* string, char* crawled_from) {
     // iterating through all the illegal characters
     if (strstr(string, "?") != NULL) {
-        return 0;
+        return NULL;
     }
     if (strstr(string, "..") != NULL) {
-        return 0;
+        return NULL;
     }
     if (strstr(string, "#") != NULL) {
-        return 0;
+        return NULL;
     }
     if (strstr(string, "%") != NULL) {
-        return 0;
+        return NULL;
     }
-    // create temp string to manipulate
-    char* temp = (char*) malloc(sizeof(char)*strlen(string) + 1);
-    strcpy(temp, string);
     // check for trailing / and remove
     // size - 1 = null character so check size - 2
-    int size = strlen(temp) + 1;
-    if (strncmp(&temp[size-2], "/", 1)) {
-        temp[size-2] = '\0';
+    int size = strlen(string) + 1;
+    if (strncmp(&string[size-1], "/", 1)) {
+        string[size-1] = '\0';
     }
     // look for http protocol in string
-    if (strstr(temp, PROTOCOL) == NULL) {
-        return 0;
+    if (strstr(string, PROTOCOL) == NULL) {
+        // create buffer to write fixed uri
+        char* buffer = (char*) malloc(sizeof(char)*1024);
         // if not present, check for // after http:
-        if (strstr(temp, DOUBLE_SLASH) == temp) {
+        if (strstr(string, DOUBLE_SLASH) == string) {
             // append protocol
-            sprintf(string, "%s%s", PROTOCOL, temp);
+            sprintf(buffer, "%s%s", PROTOCOL, string);
+            free(string);
+            fprintf(stderr, "%s\n", buffer);
+            return buffer;
         }
         else {
+            sprintf(buffer, "%s%s", crawled_from, string);
+            fprintf(stderr, "%s", buffer);
+            free(string);
             // it is a relative link and use char* crawled_from to generate uri
+            return buffer;
         }
     }
-//    string = realloc(string, strlen(temp));
-//    strcpy(string, temp);
-//    free(temp);
-    return 1;
-
+    return string;
 }
