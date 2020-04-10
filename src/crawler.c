@@ -40,9 +40,7 @@ int main(int argc, char** argv){
                 flag = 0;
                 continue;
             }
-            if (list->crawled_from != NULL) {
-                fprintf(stdout, "%s %s\n", list->website, list->crawled_from);
-            }
+            fprintf(stdout, "%s\n", list->website);
             // external library function to parse fixed uri
             struct uri uri = {0};
             uriparse(list->website, &uri);
@@ -77,7 +75,6 @@ int main(int argc, char** argv){
             }
 
             format_request(buffer, uri.path, server->h_name);
-//            fprintf(stdout, "%s\n", buffer);
             n = write(sockfd, buffer, BUFFER_SIZE);
             if (n < 0) {
                 perror("ERROR writing to socket");
