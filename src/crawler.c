@@ -20,19 +20,17 @@ int main(int argc, char** argv){
 
     llist* list = create_llist(argv[1]);
         while (list != NULL) {
-//          // need to format uri properly
-//          format_uri(list->website);
+            // need to format uri properly
+            // if string contains illegal characters/strings that we dont need to parse
+            if (!format_uri(list->website)) {
+                list = pop_llist(list);
+                continue;
+            };
             // external library function to parse uri
 
             struct uri uri = {0};
             uriparse(list->website, &uri);
             file = uri.path;
-            if (!file){
-                fprintf(stdout, "%s\n", uri.host);
-            }
-            else {
-                fprintf(stdout, "%s%s\n", uri.host, file);
-            }
             // retrieving server IP
             server = gethostbyname(uri.host);
             if (server == NULL) {
@@ -85,7 +83,7 @@ int main(int argc, char** argv){
             parsed = parse_anchors(response, array_size);
             for (int i = 0; i < *array_size; ++i) {
                 list = insert_llist(list, parsed[i]);
-                fprintf(stdout, "%s\n", parsed[i]);
+//                fprintf(stdout, "%s\n", parsed[i]);
 //                free(parsed[i]);
             }
             response = realloc(response, RESPONSE_SIZE);

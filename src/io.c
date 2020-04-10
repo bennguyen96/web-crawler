@@ -1,4 +1,6 @@
 #include "io.h"
+static const char* PROTOCOL = "http";
+static const char* DOUBLE_SLASH = "//";
 
 //struct* uri parse_io(char* domain);
 void format_request(char* buffer, char* file, char* h_name) {
@@ -54,6 +56,44 @@ char** parse_anchors(char* response, int* size) {
     return matches;
 }
 
-void format_uri(char* string) {
+int format_uri(char* string) {
+    // iterating through all the illegal characters
+    if (strstr(string, "?") != NULL) {
+        return 0;
+    }
+    if (strstr(string, "..") != NULL) {
+        return 0;
+    }
+    if (strstr(string, "#") != NULL) {
+        return 0;
+    }
+    if (strstr(string, "%") != NULL) {
+        return 0;
+    }
+    // create temp string to manipulate
+    char* temp = (char*) malloc(sizeof(char)*strlen(string) + 1);
+    strcpy(temp, string);
+    // check for trailing / and remove
+    // size - 1 = null character so check size - 2
+    int size = strlen(temp) + 1;
+    if (strncmp(&temp[size-2], "/", 1)) {
+        temp[size-2] = '\0';
+    }
+    // look for http protocol in string
+    if (strstr(temp, PROTOCOL) == NULL) {
+        return 0;
+        // if not present, check for // after http:
+        if (strstr(temp, DOUBLE_SLASH) == temp) {
+            // append protocol
+            sprintf(string, "%s%s", PROTOCOL, temp);
+        }
+        else {
+            // it is a relative link and use char* crawled_from to generate uri
+        }
+    }
+//    string = realloc(string, strlen(temp));
+//    strcpy(string, temp);
+//    free(temp);
+    return 1;
 
 }

@@ -4,6 +4,8 @@
 #include <string.h>
 #include "uriparse.h"
 
+
+
 void format_request(char* buffer, char* file, char* h_name);
 char** parse_anchors(char* response, int* size);
-void format_uri(char* string);
+int format_uri(char* string);
