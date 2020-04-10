@@ -72,13 +72,13 @@ char* format_uri(char* website, char* crawled_from) {
     // check for trailing / and remove
     // size - 1 = null character so check size - 2
     int website_size = strlen(website) + 1;
-    if (website[website_size - 1] == SINGLE_SLASH) {
-        website[website_size-1] = '\0';
+    if (website[website_size - 2] == SINGLE_SLASH) {
+        website[website_size - 2] = '\0';
     }
     if (crawled_from != NULL) {
         int size = strlen(crawled_from) + 1;
-        if (crawled_from[size - 1] == SINGLE_SLASH) {
-            crawled_from[size - 1] = '\0';
+        if (crawled_from[size - 2] == SINGLE_SLASH) {
+            crawled_from[size - 2] = '\0';
         }
     }
     // look for http protocol in string
@@ -93,8 +93,11 @@ char* format_uri(char* website, char* crawled_from) {
             return buffer;
         }
         else {
+            // check if it has any //, if it does then ignore
+            if (strstr(website, DOUBLE_SLASH) == NULL) {
+                return NULL;
+            }
             // it is a relative link and use char* crawled_from to generate uri
-            // check for trialing / from crawled_from
             sprintf(buffer, "%s%s", crawled_from, website);
             free(website);
             return buffer;

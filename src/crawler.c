@@ -40,7 +40,9 @@ int main(int argc, char** argv){
                 flag = 0;
                 continue;
             }
-            fprintf(stdout, "%s\n", list->website);
+            if (list->crawled_from != NULL) {
+                fprintf(stdout, "%s %s\n", list->website, list->crawled_from);
+            }
             // external library function to parse fixed uri
             struct uri uri = {0};
             uriparse(list->website, &uri);
