@@ -109,6 +109,6 @@ int main(int argc, char** argv){
     free(buffer);
     free(parsed);
     free(array_size);
-    exit(1);
+    exit(0);
 }
 
