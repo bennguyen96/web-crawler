@@ -56,45 +56,48 @@ char** parse_anchors(char* response, int* size) {
     return matches;
 }
 
-char* format_uri(char* string, char* crawled_from) {
+char* format_uri(char* website, char* crawled_from) {
     // iterating through all the illegal characters
-    if (strstr(string, "?") != NULL) {
+    if (strstr(website, "?") != NULL) {
         return NULL;
     }
-    if (strstr(string, "..") != NULL) {
+    if (strstr(website, "..") != NULL) {
         return NULL;
     }
-    if (strstr(string, "#") != NULL) {
+    if (strstr(website, "#") != NULL) {
         return NULL;
     }
-    if (strstr(string, "%") != NULL) {
+    if (strstr(website, "%") != NULL) {
         return NULL;
     }
     // check for trailing / and remove
     // size - 1 = null character so check size - 2
-    int size = strlen(string) + 1;
-    if (strncmp(&string[size-1], "/", 1)) {
-        string[size-1] = '\0';
+    int size = strlen(website) + 1;
+    if (strncmp(&website[size-1], "/", 1)) {
+        website[size-1] = '\0';
     }
     // look for http protocol in string
-    if (strstr(string, PROTOCOL) == NULL) {
+    if (strstr(website, PROTOCOL) == NULL) {
         // create buffer to write fixed uri
         char* buffer = (char*) malloc(sizeof(char)*1024);
         // if not present, check for // after http:
-        if (strstr(string, DOUBLE_SLASH) == string) {
+        if (strstr(website, DOUBLE_SLASH) == website) {
             // append protocol
-            sprintf(buffer, "%s%s", PROTOCOL, string);
-            free(string);
-            fprintf(stderr, "%s\n", buffer);
+            sprintf(buffer, "%s%s", PROTOCOL, website);
+            free(website);
             return buffer;
         }
         else {
-            sprintf(buffer, "%s%s", crawled_from, string);
-            fprintf(stderr, "%s", buffer);
-            free(string);
             // it is a relative link and use char* crawled_from to generate uri
+            // check for trialing / from crawled_from
+            int size = strlen(crawled_from) + 1;
+            if (strncmp(&crawled_from[size-1], "/", 1)) {
+                crawled_from[size-1] = '\0';
+            }
+            sprintf(buffer, "%s%s", crawled_from, website);
+            free(website);
             return buffer;
         }
     }
-    return string;
+    return website;
 }
