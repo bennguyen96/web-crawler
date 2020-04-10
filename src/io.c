@@ -1,6 +1,7 @@
 #include "io.h"
 static const char* PROTOCOL = "http:";
 static const char* DOUBLE_SLASH = "//";
+static const char SINGLE_SLASH = '/';
 
 //struct* uri parse_io(char* domain);
 void format_request(char* buffer, char* file, char* h_name) {
@@ -21,7 +22,7 @@ char** parse_anchors(char* response, int* size) {
     regmatch_t matchptr[2];
     char* temp;
     int size_of_matches = 1;
-    char** matches = malloc(sizeof(char*));
+    char** matches = malloc(sizeof(char*)*1000);
     /* Compile regular expression */
     return_value = regcomp(&regex, "<a[^>]+href=\"([^>|\"]+)\">", (REG_EXTENDED | REG_ICASE));
     if (return_value != 0) {
@@ -31,8 +32,6 @@ char** parse_anchors(char* response, int* size) {
     /* Execute regular expression */
     int size_of_substring = 0;
     while ((return_value = regexec(&regex, response, 2, matchptr, 0)) == 0) {
-        // creating array of strings - matches
-        matches = (char**) realloc(matches, sizeof(char*)*size_of_matches);
         // gets size of capture group
         size_of_substring = matchptr[1].rm_eo - matchptr[1].rm_so;
         // creating string to store capture group
@@ -72,9 +71,15 @@ char* format_uri(char* website, char* crawled_from) {
     }
     // check for trailing / and remove
     // size - 1 = null character so check size - 2
-    int size = strlen(website) + 1;
-    if (strncmp(&website[size-1], "/", 1)) {
-        website[size-1] = '\0';
+    int website_size = strlen(website) + 1;
+    if (website[website_size - 1] == SINGLE_SLASH) {
+        website[website_size-1] = '\0';
+    }
+    if (crawled_from != NULL) {
+        int size = strlen(crawled_from) + 1;
+        if (crawled_from[size - 1] == SINGLE_SLASH) {
+            crawled_from[size - 1] = '\0';
+        }
     }
     // look for http protocol in string
     if (strstr(website, PROTOCOL) == NULL) {
@@ -90,10 +95,6 @@ char* format_uri(char* website, char* crawled_from) {
         else {
             // it is a relative link and use char* crawled_from to generate uri
             // check for trialing / from crawled_from
-            int size = strlen(crawled_from) + 1;
-            if (strncmp(&crawled_from[size-1], "/", 1)) {
-                crawled_from[size-1] = '\0';
-            }
             sprintf(buffer, "%s%s", crawled_from, website);
             free(website);
             return buffer;

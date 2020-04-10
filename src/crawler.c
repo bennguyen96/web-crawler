@@ -6,11 +6,8 @@ int main(int argc, char** argv){
     struct sockaddr_in server_addr;
     struct hostent* server;
     char* buffer = malloc(BUFFER_SIZE*sizeof(char));
-
-    char** parsed;
     int* array_size = malloc(sizeof(int));
-    char* file = NULL;
-    char* seen_array[MAX_PAGES];
+    char** seen_array = calloc(sizeof(char*), MAX_PAGES);
     int size_seen_array = 0;
 
     if (argc < 2) {
@@ -20,7 +17,7 @@ int main(int argc, char** argv){
 
     llist* list = create_llist(argv[1]);
         while (list != NULL) {
-            char* response = malloc(100000*sizeof(char));
+            char *response = malloc(100000 * sizeof(char));
             // need to format uri properly
             // if string contains illegal characters/strings that we dont need to parse
             list->website = format_uri(list->website, list->crawled_from);
@@ -29,22 +26,25 @@ int main(int argc, char** argv){
                 continue;
             }
             // check if formatted uri has been seen before
-            int i = 0;
-            for (i = 0; i < size_seen_array; ++i) {
-                if (strcmp(list->website, seen_array[i]) == 0) {
-                    continue;
+            int flag = 0;
+            for (int i = 0; i < size_seen_array; ++i) {
+                if (seen_array[i] != NULL) {
+                    if (strcmp(seen_array[i], list->website) == 0) {
+                        flag = 1;
+                        continue;
+                    }
                 }
             }
-            if (seen_array[i] != NULL) {
-                if (strcmp(list->website, seen_array[i]) == 0) {
-                    list = pop_llist(list);
-                    continue;
-                }
+            if (flag == 1) {
+                list = pop_llist(list);
+                flag = 0;
+                continue;
             }
+            fprintf(stdout, "%s\n", list->website);
             // external library function to parse fixed uri
             struct uri uri = {0};
             uriparse(list->website, &uri);
-            file = uri.path;
+
             // retrieving server IP if exists
             server = gethostbyname(uri.host);
             if (server == NULL) {
@@ -74,8 +74,8 @@ int main(int argc, char** argv){
                 exit(0);
             }
 
-            format_request(buffer, file, server->h_name);
-            fprintf(stdout, "%s\n", buffer);
+            format_request(buffer, uri.path, server->h_name);
+//            fprintf(stdout, "%s\n", buffer);
             n = write(sockfd, buffer, BUFFER_SIZE);
             if (n < 0) {
                 perror("ERROR writing to socket");
@@ -90,24 +90,26 @@ int main(int argc, char** argv){
                     exit(0);
                 }
                 size += BUFFER_SIZE;
-//                response = realloc(response, size);
-//                response[size - 1] = '\0';
                 strcat(response, buffer);
                 bzero(buffer, BUFFER_SIZE);
             }
-            parsed = parse_anchors(response, array_size);
+            char** parsed = parse_anchors(response, array_size);
             for (int i = 0; i < *array_size; ++i) {
                 list = insert_llist(list, parsed[i]);
                 free(parsed[i]);
             }
+            free(parsed);
             free(response);
-        // add to seen_array, seen_array will be free'd
-        seen_array[size_seen_array++] = list->website;
-        list = pop_llist(list);
+            // add to seen_array
+            seen_array[size_seen_array] = malloc(sizeof(char) * (strlen(list->website) + 1));
+            strcpy(seen_array[size_seen_array++], list->website);
+            list = pop_llist(list);
         }
-
+    for (int i = 0; i < size_seen_array; ++i) {
+        free(seen_array[i]);
+    }
+    free(seen_array);
     free(buffer);
-    free(parsed);
     free(array_size);
     exit(0);
 }
