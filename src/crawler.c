@@ -44,7 +44,7 @@ int main(int argc, char** argv){
             // external library function to parse fixed uri
             struct uri uri = {0};
             uriparse(list->website, &uri);
-
+            fprintf(stdout, "%s %s\n", uri.host, uri.path);
             // retrieving server IP if exists
             server = gethostbyname(uri.host);
             if (server == NULL) {
@@ -75,6 +75,7 @@ int main(int argc, char** argv){
             }
 
             format_request(buffer, uri.path, server->h_name);
+            fprintf(stdout, "%s\n", buffer);
             n = write(sockfd, buffer, BUFFER_SIZE);
             if (n < 0) {
                 perror("ERROR writing to socket");
@@ -92,6 +93,7 @@ int main(int argc, char** argv){
                 strcat(response, buffer);
                 bzero(buffer, BUFFER_SIZE);
             }
+            fprintf(stdout, "%s\n", response);
             char** parsed = parse_anchors(response, array_size);
             for (int i = 0; i < *array_size; ++i) {
                 list = insert_llist(list, parsed[i]);
