@@ -76,7 +76,7 @@ int main(int argc, char** argv){
 
             format_request(buffer, uri.path, server->h_name);
             fprintf(stdout, "%s\n", buffer);
-            n = write(sockfd, buffer, BUFFER_SIZE);
+            n = write(sockfd, buffer, strlen(buffer));
             if (n < 0) {
                 perror("ERROR writing to socket");
                 exit(0);
