@@ -24,7 +24,7 @@ char** parse_anchors(char* response, int* size) {
     int size_of_matches = 1;
     char** matches = malloc(sizeof(char*)*1000);
     /* Compile regular expression */
-    return_value = regcomp(&regex, "<a[^>]+href=\"([^>|\"]+)\">", (REG_EXTENDED | REG_ICASE));
+    return_value = regcomp(&regex, "<a[^>]+href=[[:space:]]\"([^>|\"]+)\"[^>]>", (REG_EXTENDED | REG_ICASE));
     if (return_value != 0) {
         fprintf(stderr, "Could not compile regex, error %d\n", return_value);
     }
